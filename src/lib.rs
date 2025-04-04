@@ -30,6 +30,7 @@ struct Settings {
     #[default = true]
     split_on_boss_kills: bool,
     split_on_bad_ending: bool,
+    split_on_eye_complete: bool,
 }
 
 async fn main() {
@@ -176,16 +177,20 @@ async fn main() {
                                         break;
                                     }
                                 }
-                                // TODO: Uncomment once eye FNames are found.
-                                // for flag in EYE_SAVE_FLAGS {
-                                //     if p.current.contains(flag) {
-                                //         split();
-                                //         break;
-                                //     }
-                                // }
                             }
                         }
                     }
+                    // TODO: Uncomment once eyes save flag FNames are found.
+                    // if settings.split_on_eye_complete {
+                    //     if let Some(p) = &newest_save_flag.pair {
+                    //         for flag in EYE_SAVE_FLAGS {
+                    //             if p.current.contains(flag) {
+                    //                 split();
+                    //                 break;
+                    //             }
+                    //         }
+                    //     }
+                    // }
                     if settings.split_on_bad_ending {
                         if let Some(p) = &newest_save_flag.pair {
                             if p.old != p.current && p.old.contains("DISABLE_SAVING") {
