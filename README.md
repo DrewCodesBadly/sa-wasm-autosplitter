@@ -1,6 +1,9 @@
 # sa-wasm-autosplitter
 
-An auto splitter for Solar.
+An auto splitter for Solar Ash. Nearly a direct port of the ASL autosplitter found [here](https://github.com/Micrologist/LiveSplit.SolarAsh).  
+Additionally, support for eye autosplits is planned, which will probably be backported into the ASL autosplitter as well.  
+
+Below is auto-generated from the auto splitter template.
 
 ## Compilation
 
