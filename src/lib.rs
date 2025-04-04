@@ -20,6 +20,11 @@ static BOSS_KILL_FLAGS: [&str; 6] = [
     "Shroom_Overflow_Remnant",
 ];
 
+// TODO: Populate this array with accurate values.
+// static EYE_SAVE_FLAGS: [&str; N] = [
+//
+// ]
+
 #[derive(Gui)]
 struct Settings {
     #[default = true]
@@ -44,7 +49,8 @@ async fn main() {
                     #[cfg(debug_assertions)]
                     print_message(&format!("Module size: {:?}", main_module_size));
 
-                    // my rust is simply beyond your comprehension
+                    // my rust is simply beyond your comprehension (this is the stupidest code I've
+                    // ever written)
                     fname_pool = FNAME_POOL_SIG.scan_process_range(&process, (main_module_address, main_module_size))
                         .map(|a| process.read::<i32>(a + 0x5).ok()
                             .map(|offset| a + offset + 0x9)
@@ -170,6 +176,13 @@ async fn main() {
                                         break;
                                     }
                                 }
+                                // TODO: Uncomment once eye FNames are found.
+                                // for flag in EYE_SAVE_FLAGS {
+                                //     if p.current.contains(flag) {
+                                //         split();
+                                //         break;
+                                //     }
+                                // }
                             }
                         }
                     }
