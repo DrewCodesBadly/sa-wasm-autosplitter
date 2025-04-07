@@ -20,10 +20,34 @@ static BOSS_KILL_FLAGS: [&str; 6] = [
     "Shroom_Overflow_Remnant",
 ];
 
-// TODO: Populate this array with accurate values.
-// static EYE_SAVE_FLAGS: [&str; N] = [
-//
-// ]
+static EYE_SAVE_FLAGS: [&str; 26] = [
+    "Vale_Starseed_StaticRemnantB",
+    "Vale_Starseed_StaticRemnantC",
+    "Vale_StaticRemnantD",
+    "Woods_Cliffside_StaticRemnantA",
+    "Woods_ClockTower_StaticRemnantA",
+    "Woods_OldCity_StaticRemnantA",
+    "Woods_OldCity_StaticRemnantB",
+    "Woods_ForestAltar_StaticRemnantA",
+    "Woods_IronRootHighlands_StaticRemnantA",
+    "Woods_IronRootHighlands_StaticRemnantB",
+    "Woods_IronRootBasin_StaticRemnantA",
+    "Shroom_MagmaOutlets_StaticRemnantB",
+    "Shroom_GhostCoppice_StaticRemnantA",
+    "Shroom_Cathedral_StaticRemnantA",
+    "Shroom_Archives_StaticRemnantA",
+    "Shroom_MagmaOutlets_StaticRemnantA",
+    "Beach_AcidLagoon_StaticRemnantA",
+    "Beach_Pavilion_StaticRemnantA",
+    "Beach_Frigate_StaticRemnantA",
+    "Beach_PalaceGrounds_StaticRemnantA",
+    "Beach_PalaceUnderGround_StaticRemnantA",
+    "Shroom_Overflow_StaticRemnantA",
+    "Shroom_FungusTowers_StaticRemnantA",
+    "Shroom_ShatteredPeak_StaticRemnantA",
+    "Shroom_Graveyard_MinorRemnantA",
+    "Shroom_Overflow_StaticRemnantB",
+];
 
 #[derive(Gui)]
 struct Settings {
@@ -95,6 +119,9 @@ async fn main() {
                 // Variables
                 let mut start_on_gain_control = false;
                 let mut split_on_lose_control = false;
+                // This is used to try to fix the issues with an extra autosplit after final cyd
+                // They may only have happened on the old ASL autosplitter but just in case
+                let mut boss_splits_triggered = 0;
 
                 #[cfg(debug_assertions)]
                 print_message("Successfully entered main loop");
@@ -142,6 +169,9 @@ async fn main() {
                     if start_on_gain_control {
                         if let Some(p) = game_state.pair {
                             if p.current == 4 && p.old == 3 {
+                                boss_splits_triggered = 0;
+                                start_on_gain_control = false;
+                                split_on_lose_control = false;
                                 start();
                             }
                         }
@@ -180,17 +210,17 @@ async fn main() {
                             }
                         }
                     }
-                    // TODO: Uncomment once eyes save flag FNames are found.
-                    // if settings.split_on_eye_complete {
-                    //     if let Some(p) = &newest_save_flag.pair {
-                    //         for flag in EYE_SAVE_FLAGS {
-                    //             if p.current.contains(flag) {
-                    //                 split();
-                    //                 break;
-                    //             }
-                    //         }
-                    //     }
-                    // }
+                    if settings.split_on_eye_complete && boss_splits_triggered < 6 {
+                        if let Some(p) = &newest_save_flag.pair {
+                            for flag in EYE_SAVE_FLAGS {
+                                if p.current.contains(flag) {
+                                    split();
+                                    boss_splits_triggered += 1;
+                                    break;
+                                }
+                            }
+                        }
+                    }
                     if settings.split_on_bad_ending {
                         if let Some(p) = &newest_save_flag.pair {
                             if p.old != p.current && p.old.contains("DISABLE_SAVING") {
@@ -260,8 +290,8 @@ fn get_name_from_fname(fname_dict: &mut HashMap<i64, String>, process: &Process,
     result = process.read(name_pool_chunk + 2 * name_offset as u64 + 2).ok()?;
     // let string_result = String::from_utf8(result.as_bytes()[0..name_length as usize].to_vec()).unwrap_or_default();
     // In case a really long name causes a crash, happened once and I think this should solve it
-    // I won't make this longer than it needs to be since it seems silly that you would actually
-    // need to read the full name if it's that long
+    // I won't make the name buffer longer than it needs to be since it seems silly that you would 
+    // actually need to read the full name if it's that long
     let name_length = min(name_length, 64);
     let string_result = String::from_utf8(result.as_bytes()[0..name_length as usize].to_vec()).unwrap_or_default();
     fname_dict.insert(id, string_result.clone());
