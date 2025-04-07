@@ -1,6 +1,6 @@
 use std::{cmp::min, collections::HashMap};
 
-use asr::{deep_pointer::DeepPointer, future::next_tick, print_message, settings::Gui, signature::Signature, string::{ArrayCString, ArrayWString}, timer::{pause_game_time, reset, resume_game_time, set_variable, split, start}, watcher::Watcher, Address, Process};
+use asr::{deep_pointer::DeepPointer, future::{next_tick, retry}, print_message, settings::Gui, signature::Signature, string::{ArrayCString, ArrayWString}, timer::{pause_game_time, reset, resume_game_time, set_variable, split, start}, watcher::Watcher, Address, Process};
 
 asr::async_main!(stable);
 
@@ -60,7 +60,9 @@ struct Settings {
 async fn main() {
     let mut settings = Settings::register();
     loop {
-        let process = Process::wait_attach("Solar-Win64-Shipping").await;
+        let process = retry(|| {
+            ["Solar-Win64-Shipping", "SolarAsh", "Solar Ash", "SolarAsh.exe", "Solar-Win64-Shipping.exe"].into_iter().find_map(Process::attach)
+        }).await;
         process
             .until_closes(async {
                 // Corresponds to the init function in ASL
