@@ -204,6 +204,7 @@ async fn main() {
                                 for flag in BOSS_KILL_FLAGS {
                                     if p.current == flag {
                                         split();
+                                        boss_splits_triggered += 1;
                                         break;
                                     }
                                 }
@@ -212,11 +213,12 @@ async fn main() {
                     }
                     if settings.split_on_eye_complete && boss_splits_triggered < 6 {
                         if let Some(p) = &newest_save_flag.pair {
-                            for flag in EYE_SAVE_FLAGS {
-                                if p.current.contains(flag) {
-                                    split();
-                                    boss_splits_triggered += 1;
-                                    break;
+                            if p.old != p.current {
+                                for flag in EYE_SAVE_FLAGS {
+                                    if p.current == flag {
+                                        split();
+                                        break;
+                                    }
                                 }
                             }
                         }
