@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{cmp::min, collections::HashMap};
 
 use asr::{deep_pointer::DeepPointer, future::next_tick, print_message, settings::Gui, signature::Signature, string::{ArrayCString, ArrayWString}, timer::{pause_game_time, reset, resume_game_time, set_variable, split, start}, watcher::Watcher, Address, Process};
 
@@ -172,7 +172,7 @@ async fn main() {
                         if let Some(p) = &newest_save_flag.pair {
                             if p.old != p.current {
                                 for flag in BOSS_KILL_FLAGS {
-                                    if p.current.contains(flag) {
+                                    if p.current == flag {
                                         split();
                                         break;
                                     }
@@ -252,10 +252,17 @@ fn get_name_from_fname(fname_dict: &mut HashMap<i64, String>, process: &Process,
     #[cfg(debug_assertions)]
     set_variable("save_flag_name_offset", &name_offset.to_string());
     let name_pool_chunk: Address = Address::new(process.read(fname_pool + ((chunk_offset + 0x2) * 0x8)).ok()?);
-    let name_entry: i16 = process.read(name_pool_chunk + 0x2 * name_offset).ok()?;
+    // Cast to u64 to avoid overflow crash
+    let name_entry: i16 = process.read(name_pool_chunk + 0x2 * name_offset as u64).ok()?;
     let name_length = name_entry >> 6;
     let result: ArrayCString::<64>; 
+    // Same reason for u64 cast here
     result = process.read(name_pool_chunk + 2 * name_offset as u64 + 2).ok()?;
+    // let string_result = String::from_utf8(result.as_bytes()[0..name_length as usize].to_vec()).unwrap_or_default();
+    // In case a really long name causes a crash, happened once and I think this should solve it
+    // I won't make this longer than it needs to be since it seems silly that you would actually
+    // need to read the full name if it's that long
+    let name_length = min(name_length, 64);
     let string_result = String::from_utf8(result.as_bytes()[0..name_length as usize].to_vec()).unwrap_or_default();
     fname_dict.insert(id, string_result.clone());
     Some(string_result)
