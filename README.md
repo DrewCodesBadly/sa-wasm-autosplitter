@@ -1,7 +1,7 @@
 # sa-wasm-autosplitter
 
 An auto splitter for Solar Ash. Nearly a direct port of the ASL autosplitter found [here](https://github.com/Micrologist/LiveSplit.SolarAsh).  
-Additionally, support for eye autosplits is planned, which will probably be backported into the ASL autosplitter as well.  
+Supports load removal, automatic resetting, automatic splits on defeating remnanants, and automatic splits for each eye (static remnant).
 
 Below is auto-generated from the auto splitter template.
 
